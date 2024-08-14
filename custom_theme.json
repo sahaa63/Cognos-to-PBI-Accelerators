@@ -1,0 +1,364 @@
+{
+  "name": "Automation",
+  "dataColors": [
+    "#118DFF",
+    "#E66C37",
+    "#00519C",
+    "#6B007B",
+    "#D9B300",
+    "#744EC2",
+    "#D64550",
+    "#01B8AA",
+    "#118DFF",
+    "#12239E",
+    "#E66C37",
+    "#36A012",
+    "#3FBAAA",
+    "#6629E1",
+    "#D9B300",
+    "#D64550",
+    "#118DFF",
+    "#12239E",
+    "#E66C37",
+    "#6B007B",
+    "#D9B300",
+    "#744EC2",
+    "#D64550",
+    "#01B8AA",
+    "#118DFF",
+    "#12239E",
+    "#E66C37",
+    "#36A012",
+    "#3FBAAA",
+    "#6629E1",
+    "#D9B300",
+    "#D64550"
+  ],
+  "visualStyles": {
+    "*": {
+      "*": {
+        "title": [
+          {
+            "alignment": "left",
+            "fontFamily": "Segoe UI",
+            "bold": true,
+            "fontColor": {
+              "solid": {
+                "color":"#00519C"
+              }
+            },
+            "background": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "fontSize": 16
+          }
+        ],
+        "dropShadow": [
+          {
+            "color": {
+              "solid": {
+                "color": "#808080"
+              }
+            },
+            "preset": "Center",
+            "position": "Outer",
+            "show": true
+          }
+        ],
+        "border": [
+          {
+            "color": {
+              "solid": {
+                "color": "#CCCCCC"
+              }
+            },
+            "radius": 7,
+            "show": true
+          }
+        ],
+        "stroke": [
+          {
+            "show": false
+          }
+        ],
+        "shadow": [
+          {
+            "show": false
+          }
+        ],
+        "header": [
+            {
+              "bold": true,
+              "fontFamily": "Segoe UI",
+              "show": true,
+              "textSize": 11
+            }
+          ]
+      },
+      "x.shape" : {
+        "fill": {
+          "solid": {
+            "color": "#ffffff"
+          }
+        }
+      }
+    },
+    "textbox": {
+      "*": {
+          "border": [{
+              "color": { "solid": { "color": "#ff0000"}},
+              "show": false,
+              "radius": 0
+          }],
+          
+          "dropShadow": [
+              {
+                "color": {
+                  "solid": {
+                    "color": {
+                      "expr": {
+                        "ThemeDataColor": {
+                          "ColorId": 0,
+                          "Percent": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "show": false
+              }
+            ]
+          
+          }
+      },
+    "page": {
+      "*": {
+        "background": [
+          {
+            "image": {
+              "name": "bg",
+              "scaling": "Fit",
+              "url": "https://i.imghippo.com/files/DsXoc1715770319.png"
+            },
+            "transparency": 0
+          }
+        ]
+      }
+    },
+    "shape": {
+      "*": {
+        "background": [
+          {
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            }
+          }
+        ],
+        "text": [
+            {
+              "fontColor": {
+                "solid": {
+                  "color": "#00519C"
+                }
+              },
+              "show": true
+            }
+          ],
+        "title": [
+          {
+            "alignment": "left",
+            "background": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "bold": true,
+            "fontColor": {
+              "solid": {
+                "color": "#00519C"
+              }
+            }
+          }
+        ],
+        "fill": [
+          {
+            "show":true,
+            "fillColor": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            }
+          }
+        ],
+        "dropShadow": [
+          {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 0,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            },
+            "show": false
+          }
+        ],
+        "border": [
+          {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 0,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            },
+            "show": false
+          }
+        ]
+      }
+    },
+    "slicer": {
+      "*": {
+        "dropShadow": [
+          {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 0,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            },
+            "show": false
+          }
+        ],
+        "background": [
+          {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 0,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            },
+            "show": true
+          }
+        ],
+        "border": [
+          {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 0,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            },
+            "show": false
+          }
+        ],
+        "title": [
+            {
+              "bold": true,
+              "fontFamily": "Segoe UI"
+            }
+          ]
+      }
+    },
+    "kpi": {
+      "*": {
+        "border": [
+          {
+            "show": false
+          }
+        ],
+        "dropShadow": [
+          {
+            "show": false
+          }
+        ]
+      }
+    },
+    "card": {
+      "*": {
+        "dropShadow": [
+          {
+            "color": {
+              "solid": {
+                "color": "#808080"
+              }
+            },
+            "preset": "Center",
+            "position": "Outer",
+            "show": true
+          }
+        ],
+        "border": [
+          {
+            "color": {
+              "solid": {
+                "color": "#CCCCCC"
+              }
+            },
+            "radius": 7,
+            "show": true
+          }
+        ]
+      }
+    },
+    "image": {
+      "*": {
+          "border": [{
+              "color": { "solid": { "color": "#ff0000"}},
+              "show": false,
+              "radius": 0
+          }],
+          
+          "dropShadow": [
+              {
+                "color": {
+                  "solid": {
+                    "color": {
+                      "expr": {
+                        "ThemeDataColor": {
+                          "ColorId": 0,
+                          "Percent": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "show": false
+              }
+            ]
+          
+          }
+      }
+  }
+}
