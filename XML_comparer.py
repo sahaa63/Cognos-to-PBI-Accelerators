@@ -1,90 +1,72 @@
-# Report XML Comparer
-# expects input csvs of reports 
-
 import streamlit as st
-import xml.etree.ElementTree as ET
 import pandas as pd
-from collections import defaultdict
+import re
+from io import BytesIO
 
-# Function to extract relevant data from the report
-def extract_report_data(report):
-    tree = ET.parse(report)
-    root = tree.getroot()
+# Function to extract the package name from the string
+def extract_package_name(package_str):
+    match = re.search(r"@name='(.*?)'", package_str)
+    if match:
+        return match.group(1)
+    return package_str
 
-    data_items = set()
-    filters = set()
-    metrics = set()
-
-    # Extract data items and filters
-    for query in root.findall('.//query'):
-        for data_item in query.findall('.//dataItem'):
-            data_items.add(data_item.get('name'))
-        
-        for filter in query.findall('.//detailFilter'):
-            filter_expression = filter.find('filterExpression')
-            if filter_expression is not None:
-                filters.add(filter_expression.text)
+# Function to process the CSV file and generate the required DataFrame
+def process_csv(file):
+    df = pd.read_csv(file)
     
-    # Extract metrics (assuming metrics are stored similarly to data items, adjust path if necessary)
-    for metric in root.findall('.//metric'):
-        metrics.add(metric.get('name'))
-
-    return data_items, filters, metrics
-
-# Function to calculate overlap percentage
-def calculate_overlap(set1, set2):
-    if not set1 or not set2:
-        return 0
-    return len(set1 & set2) / len(set1 | set2) * 100
-
-# Function to compute the Report Correlation Index Score
-def compute_correlation_index(data1, data2):
-    db_attr_overlap = calculate_overlap(data1[0], data2[0])
-    filter_overlap = calculate_overlap(data1[1], data2[1])
-    metric_overlap = calculate_overlap(data1[2], data2[2])
+    # Apply the extraction function to the Package column
+    df['Package'] = df['Package'].apply(extract_package_name)
     
-    correlation_index = (0.5 * db_attr_overlap) + (0.3 * filter_overlap) + (0.2 * metric_overlap)
-    return db_attr_overlap, filter_overlap, metric_overlap, correlation_index
+    # Filtering DataFrame based on DataItemType for dataItem and detailFilter
+    data_items_df = df[df['DataItemType'] == 'dataItem']
+    detail_filters_df = df[df['DataItemType'] == 'detailFilter']
+
+    # Grouping by 'SearchPath' and concatenating the 'DataItemDetails' with duplicates removed
+    grouped_data_items = data_items_df.groupby(['SearchPath', 'ReportName']).agg({
+        'DataItemDetails': lambda x: ', '.join(sorted(set(x))),
+        'Package': 'first'
+    }).reset_index()
+
+    # Renaming the columns
+    grouped_data_items.rename(columns={'DataItemDetails': 'columnnames'}, inplace=True)
+
+    # Grouping by 'SearchPath' and concatenating 'DataItemDetails' for detailFilter with duplicates removed
+    grouped_detail_filters = detail_filters_df.groupby('SearchPath').agg({
+        'DataItemDetails': lambda x: ', '.join(sorted(set(x)))
+    }).reset_index()
+
+    # Renaming the column
+    grouped_detail_filters.rename(columns={'DataItemDetails': 'Datafilters'}, inplace=True)
+
+    # Merging the two grouped DataFrames on 'SearchPath'
+    final_df = pd.merge(grouped_data_items, grouped_detail_filters, on='SearchPath', how='left')
+
+    # Reordering columns to have 'Package' as the first column
+    final_df = final_df[['Package', 'SearchPath', 'ReportName', 'columnnames', 'Datafilters']]
+
+    return final_df
 
 # Streamlit app
-st.title("Report Rationalization")
+st.title('CSV Processor for DataItemDetails')
 
-uploaded_files = st.file_uploader("Upload Report Files", accept_multiple_files=True, type="txt")
+uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
-if uploaded_files:
-    report_data = []
+if uploaded_file is not None:
+    processed_df = process_csv(uploaded_file)
     
-    # Extract data from uploaded reports
-    for report in uploaded_files:
-        data_items, filters, metrics = extract_report_data(report)
-        report_data.append((report.name, (data_items, filters, metrics)))
-        st.write(f"Extracted from {report.name}:")
-        st.write(f"Data Items: {data_items}")
-        st.write(f"Filters: {filters}")
-        st.write(f"Metrics: {metrics}")
-
-    # Prepare dataframe to store the rationalization scores
-    df_scores = pd.DataFrame(columns=[
-        'Report 1', 'Report 2', 'Database Attribute Overlap (%)', 
-        'Filter Overlap (%)', 'Metrics Overlap (%)', 
-        'Correlation Index Score (%)', 'Total Score'
-    ])
-
-    # Calculate and display the rationalization scores
-    for i in range(len(report_data)):
-        for j in range(i + 1, len(report_data)):
-            db_attr_overlap, filter_overlap, metric_overlap, score = compute_correlation_index(report_data[i][1], report_data[j][1])
-            total_score = db_attr_overlap + filter_overlap + metric_overlap
-            df_scores = df_scores.append({
-                'Report 1': report_data[i][0],
-                'Report 2': report_data[j][0],
-                'Database Attribute Overlap (%)': db_attr_overlap,
-                'Filter Overlap (%)': filter_overlap,
-                'Metrics Overlap (%)': metric_overlap,
-                'Correlation Index Score (%)': score,
-                'Total Score': total_score
-            }, ignore_index=True)
+    st.write("Processed Data:")
+    st.dataframe(processed_df)
     
-    # Display the dataframe
-    st.write("Rationalization Scores:")
-    st.dataframe(df_scores)
+    # Prepare the Excel file for download
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        processed_df.to_excel(writer, index=False, sheet_name='Processed Data')
+        writer.close()  # Ensuring writer is properly closed
+        processed_excel = output.getvalue()
+    
+    st.download_button(
+        label="Download Processed Excel",
+        data=processed_excel,
+        file_name='processed_data.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
