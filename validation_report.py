@@ -1,14 +1,16 @@
 import streamlit as st
 import pandas as pd
 import io
+import numpy as np
 
 def generate_validation_report(cognos_df, pbi_df):
     # Identify dimensions and measures
     dims = [col for col in cognos_df.columns if col in pbi_df.columns and 
-            (cognos_df[col].dtype == 'object' or 'id' in col.lower() or 'key' in col.lower())]
+            (cognos_df[col].dtype == 'object' or 'id' in col.lower() or 'key' in col.lower() or
+             'ID' in col or 'KEY' in col)]
     cognos_measures = [col for col in cognos_df.columns if col not in dims]
     pbi_measures = [col for col in pbi_df.columns if col not in dims]
-    all_measures = list(set(cognos_measures + pbi_measures))
+    all_measures = list(set(cognos_measures) & set(pbi_measures))  # Only measures present in both
 
     # Create a unique key by concatenating all dimensions
     cognos_df['unique_key'] = cognos_df[dims].astype(str).agg('-'.join, axis=1)
@@ -29,23 +31,33 @@ def generate_validation_report(cognos_df, pbi_df):
               else 'Present in PBI')
     )
 
-    # Add measures
+    # Add measures and calculate differences
     for measure in all_measures:
-        if measure in cognos_df.columns:
-            validation_report[f'{measure}_Cognos'] = validation_report['unique_key'].map(dict(zip(cognos_df['unique_key'], cognos_df[measure])))
-        if measure in pbi_df.columns:
-            validation_report[f'{measure}_PBI'] = validation_report['unique_key'].map(dict(zip(pbi_df['unique_key'], pbi_df[measure])))
+        validation_report[f'{measure}_Cognos'] = validation_report['unique_key'].map(dict(zip(cognos_df['unique_key'], cognos_df[measure])))
+        validation_report[f'{measure}_PBI'] = validation_report['unique_key'].map(dict(zip(pbi_df['unique_key'], pbi_df[measure])))
+        
+        # Calculate difference (PBI - Cognos)
+        validation_report[f'{measure}_Diff'] = validation_report[f'{measure}_PBI'] - validation_report[f'{measure}_Cognos']
 
     # Reorder columns
     column_order = dims + ['unique_key', 'presence'] + \
-                   [f'{m}_Cognos' for m in all_measures if f'{m}_Cognos' in validation_report.columns] + \
-                   [f'{m}_PBI' for m in all_measures if f'{m}_PBI' in validation_report.columns]
+                   [col for measure in all_measures for col in 
+                    [f'{measure}_Cognos', f'{measure}_PBI', f'{measure}_Diff']]
     validation_report = validation_report[column_order]
 
     return validation_report
 
 def main():
     st.title("Validation Report Generator")
+
+    # Add helper text
+    st.markdown("""
+    **Important Assumptions:**
+    1. Make sure the column names are similar in both sheets.
+    2. Make sure the sheet names are exactly "Cognos" and "PBI".
+    """)
+
+    st.markdown("---")  # Add a horizontal line for visual separation
 
     uploaded_file = st.file_uploader("Upload Excel file", type="xlsx")
 
