@@ -59,7 +59,6 @@ def main():
     **Important Assumptions:**
     1. Upload the Excel file with two sheets: "Cognos" and "PBI".
     2. Make sure the column names are similar in both sheets.
-    3. Make sure the sheet names are exactly "Cognos" and "PBI".
    """)
 
     st.markdown("---")  # Add a horizontal line for visual separation
