@@ -16,6 +16,10 @@ def generate_validation_report(cognos_df, pbi_df):
     cognos_df['unique_key'] = cognos_df[dims].astype(str).agg('-'.join, axis=1)
     pbi_df['unique_key'] = pbi_df[dims].astype(str).agg('-'.join, axis=1)
 
+    # Move 'unique_key' to the first column
+    cognos_df = cognos_df[['unique_key'] + [col for col in cognos_df.columns if col != 'unique_key']]
+    pbi_df = pbi_df[['unique_key'] + [col for col in pbi_df.columns if col != 'unique_key']]
+
     # Create the validation report dataframe
     validation_report = pd.DataFrame({'unique_key': list(set(cognos_df['unique_key']) | set(pbi_df['unique_key']))})
 
@@ -40,12 +44,12 @@ def generate_validation_report(cognos_df, pbi_df):
         validation_report[f'{measure}_Diff'] = validation_report[f'{measure}_PBI'] - validation_report[f'{measure}_Cognos']
 
     # Reorder columns
-    column_order = dims + ['unique_key', 'presence'] + \
+    column_order = ['unique_key'] + dims + ['presence'] + \
                    [col for measure in all_measures for col in 
                     [f'{measure}_Cognos', f'{measure}_PBI', f'{measure}_Diff']]
     validation_report = validation_report[column_order]
 
-    return validation_report
+    return validation_report, cognos_df, pbi_df
 
 def main():
     st.title("Validation Report Generator")
@@ -55,7 +59,7 @@ def main():
     **Important Assumptions:**
     1. Make sure the column names are similar in both sheets.
     2. Make sure the sheet names are exactly "Cognos" and "PBI".
-    """)
+   """)
 
     st.markdown("---")  # Add a horizontal line for visual separation
 
@@ -67,7 +71,7 @@ def main():
             cognos_df = pd.read_excel(xls, 'Cognos')
             pbi_df = pd.read_excel(xls, 'PBI')
 
-            validation_report = generate_validation_report(cognos_df, pbi_df)
+            validation_report, cognos_df, pbi_df = generate_validation_report(cognos_df, pbi_df)
 
             st.subheader("Validation Report Preview")
             st.dataframe(validation_report)
