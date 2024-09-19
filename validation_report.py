@@ -6,8 +6,8 @@ import numpy as np
 def generate_validation_report(cognos_df, pbi_df):
     # Identify dimensions and measures
     dims = [col for col in cognos_df.columns if col in pbi_df.columns and 
-            (cognos_df[col].dtype == 'object' or 'id' in col.lower() or 'key' in col.lower() or
-             'ID' in col or 'KEY' in col)]
+            (cognos_df[col].dtype == 'object' or '_id' in col.lower() or '_key' in col.lower() or
+             '_ID' in col or '_KEY' in col)]
     cognos_measures = [col for col in cognos_df.columns if col not in dims]
     pbi_measures = [col for col in pbi_df.columns if col not in dims]
     all_measures = list(set(cognos_measures) & set(pbi_measures))  # Only measures present in both
@@ -59,6 +59,7 @@ def main():
     **Important Assumptions:**
     1. Upload the Excel file with two sheets: "Cognos" and "PBI".
     2. Make sure the column names are similar in both sheets.
+    3. If there are ID/Key/Code columns, make sure the ID or Key columns contains "_ID" or "_KEY" (case insensitive).
    """)
 
     st.markdown("---")  # Add a horizontal line for visual separation
