@@ -3,6 +3,7 @@ import pandas as pd
 import io
 import numpy as np
 
+
 def generate_validation_report(cognos_df, pbi_df):
     # Identify dimensions and measures
     dims = [col for col in cognos_df.columns if col in pbi_df.columns and 
@@ -13,8 +14,8 @@ def generate_validation_report(cognos_df, pbi_df):
     all_measures = list(set(cognos_measures) & set(pbi_measures))  # Only measures present in both
 
     # Create a unique key by concatenating all dimensions
-    cognos_df['unique_key'] = cognos_df[dims].astype(str).agg('-'.join, axis=1)
-    pbi_df['unique_key'] = pbi_df[dims].astype(str).agg('-'.join, axis=1)
+    cognos_df['unique_key'] = cognos_df[dims].astype(str).agg('-'.join, axis=1).str.upper()  # Capitalize for case-insensitive comparison
+    pbi_df['unique_key'] = pbi_df[dims].astype(str).agg('-'.join, axis=1).str.upper()  # Capitalize for case-insensitive comparison
 
     # Move 'unique_key' to the first column
     cognos_df = cognos_df[['unique_key'] + [col for col in cognos_df.columns if col != 'unique_key']]
@@ -50,6 +51,7 @@ def generate_validation_report(cognos_df, pbi_df):
     validation_report = validation_report[column_order]
 
     return validation_report, cognos_df, pbi_df
+
 
 def main():
     st.title("Validation Report Generator")
