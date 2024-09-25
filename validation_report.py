@@ -42,7 +42,8 @@ def generate_validation_report(cognos_df, pbi_df):
         validation_report[f'{measure}_PBI'] = validation_report['unique_key'].map(dict(zip(pbi_df['unique_key'], pbi_df[measure])))
         
         # Calculate difference (PBI - Cognos)
-        validation_report[f'{measure}_Diff'] = validation_report[f'{measure}_PBI'] - validation_report[f'{measure}_Cognos']
+        #validation_report[f'{measure}_Diff'] = validation_report[f'{measure}_PBI'] - validation_report[f'{measure}_Cognos']
+        validation_report[f'{measure}_Diff'] = validation_report[f'{measure}_PBI'].fillna(0) - validation_report[f'{measure}_Cognos'].fillna(0)
 
     # Reorder columns
     column_order = ['unique_key'] + dims + ['presence'] + \
