@@ -3,8 +3,6 @@ import pandas as pd
 import io
 import numpy as np
 
-st.write('hi')
-
 def generate_validation_report(cognos_df, pbi_df):
     # Identify dimensions and measures
     dims = [col for col in cognos_df.columns if col in pbi_df.columns and 
